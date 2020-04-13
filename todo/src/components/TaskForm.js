@@ -1,48 +1,56 @@
 import React, { useState, useReducer } from 'react';
+import TaskList from './TaskList';
 import { taskReducer, initialTaskState } from '../reducers.js/taskReducer';
 
 
 const TaskForm = () => {
-    const [taskState, dispatch] = useReducer(taskReducer, initialTaskState);
-    const [task, setTask] = useState("");
+    const [{tasks}, dispatch] = useReducer(taskReducer, {tasks: []});
+    console.log("tasks", tasks);
+    const [newTask, setNewTask] = useState("");
 
     const handleChanges = e => {
-        setTask(e.target.value);
+        setNewTask(e.target.value);
     }
 
-    const addTask = () => {
-        dispatch({type: "ADD_TASK", payload: task});
-    };
-
-    const toggleComplete = () => {
-        dispatch({type: "TOGGLE_COMPLETE"})
-    }
-
-    const handleAddTask = e => {
+    const clearForm = e => {
         e.preventDefault();
-        setTask({...task, [e.target.name]: e.target.value});
+        setNewTask("");
     }
 
-    const itemComplete = e => {
+    const handleSubmit = e => {
         e.preventDefault();
-        setTask("");
-
-
+        dispatch({ type: "ADD_TASK", payload: newTask})
     }
+
 
     return (
         <div>
-            <form onSubmit={handleAddTask}>
+            <form onSubmit={handleSubmit}>
                 <input
                     type="text"
-                    name="task"
+                    name="newTask"
                     placeholder="Add a task here"
-                    value={task}
+                    value={newTask}
                     onChange={handleChanges}
                 />
-                <button onClick={addTask}>Add Task</button>
-                <button className="clear-btn" onClick={itemComplete}>Clear</button>
+                <button type="submit">Add Task</button>
             </form>
+            <button className="clear-btn" onClick={clearForm}>Clear</button>
+            <div>
+                <h1>Task List</h1>
+                {tasks.map((item, id) => (
+                    <div 
+                    key={item.id} 
+                    className="item"
+                    onClick={() => dispatch({type: "TOGGLE_COMPLETE", id})}
+                    style= {{
+                        textDecoration: item.completed ? "line-through" : ""
+                    }}
+                    >
+                        {item.task}
+                    </div>
+                ))}
+            </div>
         </div>
     )
 };
